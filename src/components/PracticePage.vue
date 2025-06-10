@@ -44,7 +44,6 @@
               :class="{ 'shake': showError }"
               placeholder="например: ка"
               autocomplete="off"
-              spellcheck="false"
             ></ion-input>
           </ion-item>
 
@@ -78,24 +77,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import {nextTick, onMounted, onUnmounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
   IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
   IonIcon,
-  IonProgressBar,
-  IonItem,
-  IonLabel,
   IonInput,
-  IonSpinner
+  IonItem,
+  IonPage,
+  IonProgressBar,
+  IonSpinner,
+  IonTitle,
+  IonToolbar
 } from '@ionic/vue'
-import { usePractice } from '../composables/usePractice'
+import {usePractice} from '../composables/usePractice'
 
 const router = useRouter()
 const { practiceSession, getCurrentCharacter, checkAnswer, nextCharacter, getProgress, resetPractice } = usePractice()
@@ -104,7 +102,7 @@ const userAnswer = ref('')
 const showError = ref(false)
 const inputRef = ref()
 
-let errorTimeout: NodeJS.Timeout | null = null
+let errorTimeout = ref(null)
 
 const submitAnswer = async () => {
   if (!userAnswer.value.trim()) return

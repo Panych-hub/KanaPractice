@@ -1,6 +1,6 @@
-import { createApp } from 'vue'
-import { IonicVue, IonicConfig } from '@ionic/vue'
-import { createRouter, createWebHistory } from '@ionic/vue-router'
+import {createApp} from 'vue'
+import {IonicVue} from '@ionic/vue'
+import {createRouter, createWebHistory} from '@ionic/vue-router'
 import App from './App.vue'
 import HomePage from './components/HomePage.vue'
 import PracticePage from './components/PracticePage.vue'
@@ -28,11 +28,9 @@ import '@ionic/vue/css/display.css'
  * For more info, please see:
  * https://ionicframework.com/docs/theming/dark-mode
  */
-
 /* @import '@ionic/vue/css/palettes/dark.always.css'; */
 /* @import '@ionic/vue/css/palettes/dark.class.css'; */
 // import '@ionic/vue/css/palettes/dark.system.css'
-
 import './style.css'
 
 const routes = [
@@ -63,13 +61,9 @@ const router = createRouter({
   routes
 })
 
-const ionicConfig: IonicConfig = {
-  mode: 'ios' // or 'md' for Material Design
-}
-
 const app = createApp(App)
 
-app.use(IonicVue, ionicConfig)
+app.use(IonicVue)
 app.use(router)
 
 router.isReady().then(() => {
