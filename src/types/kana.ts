@@ -13,5 +13,8 @@ export interface PracticeSession {
     character: KanaCharacter
     incorrectAnswers: string[]
   }>
+  skipped: Array<{
+    character: KanaCharacter
+  }>
   completed: boolean
 }

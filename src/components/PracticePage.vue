@@ -9,30 +9,26 @@
         </ion-buttons>
         <ion-title>
           <div class="progress-text">
-          Практика
+            Практика
           </div>
           <ion-progress-bar :value="getProgress.percentage / 100"></ion-progress-bar>
           <div class="progress-text">
             {{ Math.min(getProgress.current + 1, getProgress.total) }} из {{ getProgress.total }}
           </div>
         </ion-title>
+        <ion-buttons slot="end">
+          <ion-button @click="skipCharacter" v-if="practiceSession && !practiceSession.completed" fill="clear" color="medium">
+            <ion-icon name="play-skip-forward-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true" :scroll-y="false">
       <div class="practice-container" v-if="practiceSession && !practiceSession.completed">
-        <!-- Прогресс -->
-<!--        <div class="progress-section">-->
-<!--          <ion-progress-bar :value="getProgress.percentage / 100"></ion-progress-bar>-->
-<!--          <div class="progress-text">-->
-<!--            {{ getProgress.current + 1 }} из {{ getProgress.total }}-->
-<!--          </div>-->
-<!--        </div>-->
-
         <!-- Текущий символ -->
         <div class="character-display" v-if="getCurrentCharacter">
           <div class="character" :class="{ error: showError }">{{ getCurrentCharacter.character }}</div>
-<!--          <div class="character-type">{{ getCurrentCharacter.type === 'hiragana' ? 'Хирагана' : 'Катакана' }}</div>-->
         </div>
 
         <!-- Форма ввода -->
@@ -47,20 +43,39 @@
                 @keyup.enter="submitAnswer"
                 :class="{ 'shake': showError }"
                 autocomplete="off"
+                placeholder="Введите чтение символа"
             ></ion-input>
           </ion-item>
 
-          <ion-button
-              expand="block"
-              @click="submitAnswer"
-              :disabled="!userAnswer.trim()"
-              class="submit-button"
-          >
-            Проверить
-          </ion-button>
+          <div class="button-row">
+            <ion-button
+                expand="block"
+                @click="submitAnswer"
+                :disabled="!userAnswer.trim()"
+                class="submit-button"
+            >
+              Проверить
+            </ion-button>
+
+            <ion-button
+                expand="block"
+                fill="outline"
+                color="medium"
+                @click="skipCurrentCharacter"
+                class="skip-button"
+            >
+              Пропустить
+            </ion-button>
+          </div>
         </div>
 
-
+        <!-- Статистика пропусков (опционально) -->
+        <div class="skip-info" v-if="getSkippedCount > 0">
+          <ion-chip color="warning" outline>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <ion-label>Пропущено: {{ getSkippedCount }}</ion-label>
+          </ion-chip>
+        </div>
       </div>
 
       <!-- Завершение практики -->
@@ -85,11 +100,13 @@ import {useRouter} from 'vue-router'
 import {
   IonButton,
   IonButtons,
+  IonChip,
   IonContent,
   IonHeader,
   IonIcon,
   IonInput,
   IonItem,
+  IonLabel,
   IonPage,
   IonProgressBar,
   IonSpinner,
@@ -100,7 +117,16 @@ import {usePractice} from '../composables/usePractice'
 import {Home_icon} from "../assets"
 
 const router = useRouter()
-const { practiceSession, getCurrentCharacter, checkAnswer, nextCharacter, getProgress, resetPractice } = usePractice()
+const {
+  practiceSession,
+  getCurrentCharacter,
+  checkAnswer,
+  nextCharacter,
+  skipCharacter,
+  getProgress,
+  getSkippedCount,
+  resetPractice
+} = usePractice()
 
 const userAnswer = ref('')
 const showError = ref(false)
@@ -141,11 +167,22 @@ const submitAnswer = async () => {
   }
 }
 
+async function skipCurrentCharacter() {
+  skipCharacter()
+  nextCharacter()
+  if (practiceSession.value?.completed) {
+    setTimeout(() => {
+      router.push('/results')
+    }, 1000)
+  } else {
+    await nextTick()
+    inputRef.value?.$el.setFocus()
+  }
+}
 const goHome = () => {
   resetPractice()
   router.push('/home')
 }
-
 
 onMounted(async () => {
   if (!practiceSession.value) {
@@ -158,7 +195,6 @@ onUnmounted(() => {
   if (errorTimeout.value) clearTimeout(errorTimeout.value)
 })
 </script>
-
 
 <style scoped>
 .practice-container {
@@ -197,10 +233,12 @@ onUnmounted(() => {
   margin-bottom: 16px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .character.error {
   background-color: var(--ion-color-danger-tint);
   color: var(--ion-color-light);
 }
+
 .character-type {
   font-size: 1.2em;
   color: var(--ion-color-medium);
@@ -223,13 +261,36 @@ onUnmounted(() => {
   --border-color: var(--ion-color-danger);
 }
 
+.button-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
 .submit-button {
   --background: var(--ion-color-primary);
   --background-hover: var(--ion-color-primary-shade);
   --border-radius: 12px;
+  width: 100%;
   height: 52px;
   font-size: 1.1em;
   font-weight: 600;
+}
+
+.skip-button {
+  width: 100%;
+  --border-radius: 12px;
+  height: 52px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.skip-info {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 100;
 }
 
 .error-message {
@@ -310,7 +371,17 @@ onUnmounted(() => {
   .practice-container {
     padding: 16px;
   }
+
+  .button-row {
+    gap: 10px;
+  }
+
+  .skip-info {
+    top: 70px;
+    right: 16px;
+  }
 }
+
 .input-section-fixed {
   background: var(--ion-background-color);
   padding: 20px;
@@ -318,6 +389,7 @@ onUnmounted(() => {
   z-index: 1000;
   transition: transform 0.3s ease;
 }
+
 ion-header {
   position: sticky;
   top: 0;

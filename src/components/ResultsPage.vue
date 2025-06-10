@@ -89,7 +89,23 @@
             </div>
           </div>
         </div>
-
+        <div v-if="practiceSession.skipped.length > 0" class="errors-section">
+          <h3>Пропущены</h3>
+          <div class="error-cards">
+            <div
+                v-for="skipped in practiceSession.skipped"
+                :key="skipped.character.character"
+                class="error-card"
+            >
+              <div class="error-character">
+                <div class="character">{{ skipped.character.character }}</div>
+                <div class="character-info">
+                  <div class="correct-answer">{{ skipped.character.russian }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Поздравление -->
         <div v-else class="perfect-score">
           <h3>Отличная работа!</h3>
@@ -102,7 +118,7 @@
             expand="block" 
             fill="outline" 
             @click="practiceAgain"
-            v-if="practiceSession.errors.length > 0"
+            v-if="practiceSession.errors.length > 0 ||practiceSession.skipped.length > 0  "
             class="practice-again-button"
           >
             <ion-icon name="refresh" slot="start"></ion-icon>
@@ -153,7 +169,7 @@ const totalCount = computed(() =>
 )
 
 const errorCount = computed(() => 
-  practiceSession.value?.errors.length || 0
+  (practiceSession.value?.errors.length ?? 0) + (practiceSession.value?.skipped.length ?? 0)
 )
 
 const correctCount = computed(() => 
@@ -175,6 +191,9 @@ const practiceAgain = () => {
   if (!practiceSession.value) return
   
   const errorCharacters = practiceSession.value.errors.map(error => error.character)
+  practiceSession.value.skipped.forEach(skipped => {
+    errorCharacters.push(skipped.character)
+  })
   startPractice(errorCharacters)
   router.push('/practice')
 }
