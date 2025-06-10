@@ -4,54 +4,57 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-button @click="goHome">
-            <ion-icon name="arrow-back"></ion-icon>
+            <ion-icon :icon="Home_icon" size="large" color="primary"></ion-icon>
           </ion-button>
         </ion-buttons>
-        <ion-title>Практика</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    
-    <ion-content :fullscreen="true">
-      <div class="practice-container" v-if="practiceSession && !practiceSession.completed">
-        <!-- Прогресс -->
-        <div class="progress-section">
+        <ion-title>
+          <div class="progress-text">
+          Практика
+          </div>
           <ion-progress-bar :value="getProgress.percentage / 100"></ion-progress-bar>
           <div class="progress-text">
-            {{ getProgress.current + 1 }} из {{ getProgress.total }}
+            {{ Math.min(getProgress.current + 1, getProgress.total) }} из {{ getProgress.total }}
           </div>
-        </div>
+        </ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true" :scroll-y="false">
+      <div class="practice-container" v-if="practiceSession && !practiceSession.completed">
+        <!-- Прогресс -->
+<!--        <div class="progress-section">-->
+<!--          <ion-progress-bar :value="getProgress.percentage / 100"></ion-progress-bar>-->
+<!--          <div class="progress-text">-->
+<!--            {{ getProgress.current + 1 }} из {{ getProgress.total }}-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Текущий символ -->
         <div class="character-display" v-if="getCurrentCharacter">
           <div class="character" :class="{ error: showError }">{{ getCurrentCharacter.character }}</div>
-          <div class="character-type">{{ getCurrentCharacter.type === 'hiragana' ? 'Хирагана' : 'Катакана' }}</div>
+<!--          <div class="character-type">{{ getCurrentCharacter.type === 'hiragana' ? 'Хирагана' : 'Катакана' }}</div>-->
         </div>
 
         <!-- Форма ввода -->
-        <div class="input-section">
-<!--          <div v-if="showError" class="error-message">-->
-<!--            <ion-icon name="close-circle" color="danger"></ion-icon>-->
-<!--            <span>Неправильно! Попробуйте еще раз.</span>-->
-<!--          </div>-->
+        <div class="input-section-fixed" ref="inputSectionRef">
           <ion-item
-            :class="{ 'error-input': showError }"
-            class="answer-input"
+              :class="{ 'error-input': showError }"
+              class="answer-input"
           >
             <ion-input
-              ref="inputRef"
-              v-model="userAnswer"
-              @keyup.enter="submitAnswer"
-              :class="{ 'shake': showError }"
-              placeholder="например: ка"
-              autocomplete="off"
+                ref="inputRef"
+                v-model="userAnswer"
+                @keyup.enter="submitAnswer"
+                :class="{ 'shake': showError }"
+                autocomplete="off"
             ></ion-input>
           </ion-item>
 
           <ion-button
-            expand="block" 
-            @click="submitAnswer"
-            :disabled="!userAnswer.trim()"
-            class="submit-button"
+              expand="block"
+              @click="submitAnswer"
+              :disabled="!userAnswer.trim()"
+              class="submit-button"
           >
             Проверить
           </ion-button>
@@ -94,13 +97,15 @@ import {
   IonToolbar
 } from '@ionic/vue'
 import {usePractice} from '../composables/usePractice'
+import {Home_icon} from "../assets"
 
 const router = useRouter()
 const { practiceSession, getCurrentCharacter, checkAnswer, nextCharacter, getProgress, resetPractice } = usePractice()
 
 const userAnswer = ref('')
 const showError = ref(false)
-const inputRef = ref()
+const inputRef = ref<InstanceType<typeof IonInput> | null>(null)
+const inputSectionRef = ref<HTMLElement | null>(null)
 
 let errorTimeout = ref<number | null>(null)
 
@@ -108,35 +113,29 @@ const submitAnswer = async () => {
   if (!userAnswer.value.trim()) return
 
   const isCorrect = checkAnswer(userAnswer.value)
-  
+
   if (isCorrect) {
-    // Правильный ответ
     showError.value = false
     userAnswer.value = ''
     nextCharacter()
-    
-    // Если практика завершена, переходим к результатам
+
     if (practiceSession.value?.completed) {
       setTimeout(() => {
         router.push('/results')
-      }, 1500)
+      }, 1000)
     } else {
-      // Фокусируем на следующий символ
       await nextTick()
       inputRef.value?.$el.setFocus()
     }
   } else {
-    // Неправильный ответ
     showError.value = true
     userAnswer.value = ''
-    
-    // Убираем анимацию ошибки через время
+
     if (errorTimeout.value) clearTimeout(errorTimeout.value)
     errorTimeout.value = setTimeout(() => {
       showError.value = false
-    }, 2000)
-    
-    // Фокусируем обратно на поле ввода
+    }, 1000)
+
     await nextTick()
     inputRef.value?.$el.setFocus()
   }
@@ -147,16 +146,12 @@ const goHome = () => {
   router.push('/home')
 }
 
+
 onMounted(async () => {
-  // Проверяем, есть ли активная сессия
   if (!practiceSession.value) {
     router.push('/home')
     return
   }
-  
-  // Фокусируем поле ввода
-  await nextTick()
-  inputRef.value?.$el.setFocus()
 })
 
 onUnmounted(() => {
@@ -164,12 +159,12 @@ onUnmounted(() => {
 })
 </script>
 
+
 <style scoped>
 .practice-container {
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
-  min-height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -204,6 +199,7 @@ onUnmounted(() => {
 }
 .character.error {
   background-color: var(--ion-color-danger-tint);
+  color: var(--ion-color-light);
 }
 .character-type {
   font-size: 1.2em;
@@ -310,9 +306,21 @@ onUnmounted(() => {
   .character {
     font-size: 6em;
   }
-  
+
   .practice-container {
     padding: 16px;
   }
+}
+.input-section-fixed {
+  background: var(--ion-background-color);
+  padding: 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+ion-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
 }
 </style>

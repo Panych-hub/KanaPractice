@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/vite-env.d.ts","./src/composables/usepractice.ts","./src/data/kanadata.ts","./src/types/kana.ts","./src/app.vue","./src/components/homepage.vue","./src/components/practicepage.vue","./src/components/resultspage.vue"],"version":"5.8.3"}
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/assets/index.ts","./src/composables/usepractice.ts","./src/data/kanadata.ts","./src/types/kana.ts","./src/app.vue","./src/components/homepage.vue","./src/components/practicepage.vue","./src/components/resultspage.vue"],"version":"5.8.3"}

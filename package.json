@@ -4,14 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite type-check",
+    "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/keyboard": "^7.0.1",
     "@ionic/vue": "^8.6.0",
     "@ionic/vue-router": "^8.6.0",
+    "capacitor": "^0.5.6",
     "vue": "^3.4.38",
     "vue-router": "^4.4.5"
   },

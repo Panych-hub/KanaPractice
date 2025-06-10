@@ -2,11 +2,20 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>Изучение японской азбуки</ion-title>
+          <ion-button
+              v-if="selectedCharacters.size > 0"
+              expand="block"
+              size="large"
+              @click="startPractice"
+              class="practice-button"
+          >
+            Начать практику ({{ selectedCharacters.size }} символов)
+          </ion-button>
+        <ion-title v-else size="large">Выберите символы</ion-title>
       </ion-toolbar>
     </ion-header>
-    
-    <ion-content :fullscreen="true">
+
+    <ion-content :fullscreen="true" class="page-content">
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Изучение японской азбуки</ion-title>
@@ -42,7 +51,7 @@
               :indeterminate="isRowPartiallySelected(row)"
               @ionChange="toggleRow(row)"
             ></ion-checkbox>
-            <h3>{{ rowNames[row] }}</h3>
+            <h3 @click="toggleRow(row)">{{ rowNames[row] }}</h3>
             <span class="character-count">({{ characters.length }})</span>
           </div>
           
@@ -62,16 +71,7 @@
         </div>
 
         <!-- Кнопка начала практики -->
-        <div class="practice-button-container" v-if="selectedCharacters.size > 0">
-          <ion-button 
-            expand="block" 
-            size="large" 
-            @click="startPractice"
-            class="practice-button"
-          >
-            Начать практику ({{ selectedCharacters.size }} символов)
-          </ion-button>
-        </div>
+
       </div>
     </ion-content>
   </ion-page>
@@ -167,10 +167,11 @@ const startPractice = () => {
 
 onMounted(() => {
   // Выбираем гласные по умолчанию
-  hiraganaData.filter(char => char.row === 'vowels').forEach(char => {
-    selectedCharacters.value.add(char)
-  })
+  // hiraganaData.filter(char => char.row === 'vowels').forEach(char => {
+  //   selectedCharacters.value.add(char)
+  // })
 })
+
 </script>
 
 <style scoped>
@@ -265,15 +266,9 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.practice-button-container {
-  position: sticky;
-  bottom: 16px;
-  margin-top: 32px;
-  padding: 16px 0;
-  background: var(--ion-background-color);
-  z-index: 10;
+.content-container {
+  padding-bottom: 100px; /* или больше, если нужно */
 }
-
 .practice-button {
   --background: var(--ion-color-success);
   --background-hover: var(--ion-color-success-shade);
@@ -294,4 +289,21 @@ onMounted(() => {
     font-size: 2em;
   }
 }
+.practice-button-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0);
+  padding: 16px;
+  background: var(--ion-background-color);
+  z-index: 999;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.practice-button {
+  --background: var(--ion-color-success);
+  --background-hover: var(--ion-color-success-shade);
+  margin: 0 auto;
+}
+
 </style>

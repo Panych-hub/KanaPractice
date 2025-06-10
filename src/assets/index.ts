@@ -1,0 +1,1 @@
+export const Home_icon = new URL('../assets/Home.svg', import.meta.url).href

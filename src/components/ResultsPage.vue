@@ -18,7 +18,7 @@
             <div class="stat-divider"></div>
             <div class="stat-item">
               <div class="stat-number error">{{ errorCount }}</div>
-              <div class="stat-label">С ошибками</div>
+              <div class="stat-label">Ошибки</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
@@ -71,7 +71,6 @@
               <div class="error-character">
                 <div class="character">{{ error.character.character }}</div>
                 <div class="character-info">
-                  <div class="romanji">{{ error.character.romanji }}</div>
                   <div class="correct-answer">{{ error.character.russian }}</div>
                 </div>
               </div>
@@ -93,7 +92,6 @@
 
         <!-- Поздравление -->
         <div v-else class="perfect-score">
-          <ion-icon name="trophy" class="trophy-icon"></ion-icon>
           <h3>Отличная работа!</h3>
           <p>Вы ответили правильно на все вопросы!</p>
         </div>
@@ -201,7 +199,7 @@ const goHome = () => {
 .stats-card {
   background: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-around;
@@ -432,11 +430,7 @@ const goHome = () => {
 }
 
 @media (max-width: 600px) {
-  .stats-card {
-    flex-direction: column;
-    gap: 20px;
-  }
-  
+
   .stat-divider {
     width: 60px;
     height: 1px;
