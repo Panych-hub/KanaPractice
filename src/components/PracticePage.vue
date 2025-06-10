@@ -102,7 +102,7 @@ const userAnswer = ref('')
 const showError = ref(false)
 const inputRef = ref()
 
-let errorTimeout = ref(null)
+let errorTimeout = ref<number | null>(null)
 
 const submitAnswer = async () => {
   if (!userAnswer.value.trim()) return
