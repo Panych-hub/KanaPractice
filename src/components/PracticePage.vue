@@ -131,8 +131,8 @@ const submitAnswer = async () => {
     userAnswer.value = ''
     
     // Убираем анимацию ошибки через время
-    if (errorTimeout) clearTimeout(errorTimeout)
-    errorTimeout = setTimeout(() => {
+    if (errorTimeout.value) clearTimeout(errorTimeout.value)
+    errorTimeout.value = setTimeout(() => {
       showError.value = false
     }, 2000)
     
@@ -160,7 +160,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  if (errorTimeout) clearTimeout(errorTimeout)
+  if (errorTimeout.value) clearTimeout(errorTimeout.value)
 })
 </script>
 
